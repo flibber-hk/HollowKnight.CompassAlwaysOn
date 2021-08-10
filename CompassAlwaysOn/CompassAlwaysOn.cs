@@ -26,7 +26,7 @@ namespace CompassAlwaysOn
 
         public override string GetVersion()
         {
-            return "0.2";
+            return "0.3";
         }
 
         private void GameMap_PositionCompass(On.GameMap.orig_PositionCompass orig, GameMap self, bool posShade)
