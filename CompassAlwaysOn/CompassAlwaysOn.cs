@@ -3,51 +3,59 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Modding;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 
 namespace CompassAlwaysOn
 {
     public class CompassAlwaysOn : Mod, ITogglableMod
     {
         internal static CompassAlwaysOn instance;
+        public const string EnabledBool = "CompassAlwaysOn_enabled";
 
         public override void Initialize()
         {
             instance = this;
 
-            On.GameMap.PositionCompass += GameMap_PositionCompass;
-            On.GameMap.WorldMap += GameMap_WorldMap;
+            IL.GameMap.PositionCompass += ModifyCompassBool;
+            IL.GameMap.WorldMap += ModifyCompassBool;
+
+            ModHooks.Instance.GetPlayerBoolHook += InterpretCompassBool;
+        }
+
+        private bool InterpretCompassBool(string originalSet)
+        {
+            if (originalSet != EnabledBool) return PlayerData.instance.GetBoolInternal(originalSet);
+
+            return true;
+        }
+
+        // Easiest to simply force the relevant methods to request our own bool for compass
+        private void ModifyCompassBool(ILContext il)
+        {
+            ILCursor cursor = new ILCursor(il);
+
+            while (cursor.TryGotoNext
+            (
+                i => i.MatchLdstr("equippedCharm_2")
+            ))
+            {
+                cursor.Remove();
+                cursor.Emit(OpCodes.Ldstr, EnabledBool);
+            }
         }
 
         public void Unload()
         {
-            On.GameMap.PositionCompass -= GameMap_PositionCompass;
-            On.GameMap.WorldMap -= GameMap_WorldMap;
+            IL.GameMap.PositionCompass -= ModifyCompassBool;
+            IL.GameMap.WorldMap -= ModifyCompassBool;
+
+            ModHooks.Instance.GetPlayerBoolHook -= InterpretCompassBool;
         }
 
         public override string GetVersion()
         {
-            return "0.2";
-        }
-
-        private void GameMap_PositionCompass(On.GameMap.orig_PositionCompass orig, GameMap self, bool posShade)
-        {
-            bool tmp = PlayerData.instance.GetBoolInternal(nameof(PlayerData.equippedCharm_2));
-            PlayerData.instance.SetBoolInternal(nameof(PlayerData.equippedCharm_2), true);
-
-            orig(self, posShade);
-
-            PlayerData.instance.SetBoolInternal(nameof(PlayerData.equippedCharm_2), tmp);
-        }
-
-        // Act as if compass is equipped when they scroll to an area where they don't have the map
-        private void GameMap_WorldMap(On.GameMap.orig_WorldMap orig, GameMap self)
-        {
-            bool tmp = PlayerData.instance.GetBoolInternal(nameof(PlayerData.equippedCharm_2));
-            PlayerData.instance.SetBoolInternal(nameof(PlayerData.equippedCharm_2), true);
-
-            orig(self);
-
-            PlayerData.instance.SetBoolInternal(nameof(PlayerData.equippedCharm_2), tmp);
+            return "0.5";
         }
     }
 }
