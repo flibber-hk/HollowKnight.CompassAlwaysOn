@@ -20,14 +20,12 @@ namespace CompassAlwaysOn
             IL.GameMap.PositionCompass += ModifyCompassBool;
             IL.GameMap.WorldMap += ModifyCompassBool;
 
-            ModHooks.Instance.GetPlayerBoolHook += InterpretCompassBool;
+            ModHooks.GetPlayerBoolHook += InterpretCompassBool;
         }
 
-        private bool InterpretCompassBool(string originalSet)
+        private bool InterpretCompassBool(string name, bool orig)
         {
-            if (originalSet != EnabledBool) return PlayerData.instance.GetBoolInternal(originalSet);
-
-            return true;
+            return orig || (name == EnabledBool);
         }
 
         // Easiest to simply force the relevant methods to request our own bool for compass
@@ -50,12 +48,12 @@ namespace CompassAlwaysOn
             IL.GameMap.PositionCompass -= ModifyCompassBool;
             IL.GameMap.WorldMap -= ModifyCompassBool;
 
-            ModHooks.Instance.GetPlayerBoolHook -= InterpretCompassBool;
+            ModHooks.GetPlayerBoolHook -= InterpretCompassBool;
         }
 
         public override string GetVersion()
         {
-            return "0.5";
+            return "0.9";
         }
     }
 }
