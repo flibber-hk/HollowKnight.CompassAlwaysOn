@@ -53,7 +53,7 @@ namespace CompassAlwaysOn
 
         public override string GetVersion()
         {
-            return "0.9";
+            return "1.0";
         }
     }
 }
