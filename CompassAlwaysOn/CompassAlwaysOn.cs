@@ -1,22 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using Modding;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using Mono.Cecil.Cil;
 
 namespace CompassAlwaysOn
 {
     public class CompassAlwaysOn : Mod, ITogglableMod
     {
         internal static CompassAlwaysOn instance;
-        public const string EnabledBool = "CompassAlwaysOn_enabled";
+        public const string EnabledBool = "CompassAlwaysOn.Enabled";
 
 
-        private static ILHook _HKMPHook;
+        private static readonly List<ILHook> ModInteropHooks = new List<ILHook>();
+
+        public static readonly List<(string, string, string)> HookableModClasses = new List<(string, string, string)>()
+        {
+            // (Mod Name, Type Full Name, Method Name)
+            ("HKMP", "Hkmp.Game.Client.MapManager, Hkmp", "HeroControllerOnUpdate"),
+            ("Additional Maps", "AdditionalMaps.MonoBehaviours.GameMapHooks, AdditionalMaps", "NewPositionCompass")
+        };
+
         public override void Initialize()
         {
             instance = this;
@@ -24,15 +30,30 @@ namespace CompassAlwaysOn
             IL.GameMap.PositionCompass += ModifyCompassBool;
             IL.GameMap.WorldMap += ModifyCompassBool;
 
-            if (ModHooks.GetMod("HKMP") is Mod hkmp)
+            BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+            foreach ((string modName, string typeName, string methodName) in HookableModClasses)
             {
-                Log("Attempting to hook HKMP");
-                Type HkmpMapManager = Type.GetType("Hkmp.Game.Client.MapManager, Hkmp");
-                MethodInfo HkmpHeroUpdateMethod = HkmpMapManager?.GetMethod("HeroControllerOnUpdate", BindingFlags.NonPublic | BindingFlags.Instance);
-                if (HkmpHeroUpdateMethod != null)
+                if (ModHooks.GetMod(modName) is Mod _)
                 {
-                    Log("Hooking HKMP");
-                    _HKMPHook = new ILHook(HkmpHeroUpdateMethod, ModifyCompassBool);
+                    Log("Attempting to hook " + modName);
+                    Type type = Type.GetType(typeName);
+                    MethodInfo method = type?.GetMethod(methodName, flags);
+                    if (method != null)
+                    {
+                        Log($"Hooking {typeName}::{methodName}");
+                        ModInteropHooks.Add(new ILHook(method, ModifyCompassBool));
+                    }
+                    else
+                    {
+                        if (type == null)
+                        {
+                            Log($"Type not found: {typeName}");
+                        }
+                        else
+                        {
+                            Log($"Method not found: {methodName}");
+                        }
+                    }
                 }
             }
 
@@ -51,7 +72,8 @@ namespace CompassAlwaysOn
 
             while (cursor.TryGotoNext
             (
-                i => i.MatchLdstr("equippedCharm_2")
+                i => i.MatchLdstr("equippedCharm_2"),
+                i => i.MatchCallOrCallvirt<PlayerData>("GetBool")
             ))
             {
                 cursor.Remove();
@@ -63,7 +85,11 @@ namespace CompassAlwaysOn
         {
             IL.GameMap.PositionCompass -= ModifyCompassBool;
             IL.GameMap.WorldMap -= ModifyCompassBool;
-            _HKMPHook?.Dispose();
+            foreach (ILHook hook in ModInteropHooks)
+            {
+                hook?.Dispose();
+            }
+            ModInteropHooks.Clear();
 
             ModHooks.GetPlayerBoolHook -= InterpretCompassBool;
         }
@@ -71,6 +97,11 @@ namespace CompassAlwaysOn
         public override string GetVersion()
         {
             return "1.0";
+        }
+        public override int LoadPriority()
+        {
+            // Mods loading before this one can simply add tuples to HookableModClasses, if they want to
+            return 1023;
         }
     }
 }
