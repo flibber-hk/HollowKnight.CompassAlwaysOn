@@ -20,7 +20,8 @@ namespace CompassAlwaysOn
         {
             // (Mod Name, Type Full Name, Method Name)
             ("HKMP", "Hkmp.Game.Client.MapManager, Hkmp", "HeroControllerOnUpdate"),
-            ("Additional Maps", "AdditionalMaps.MonoBehaviours.GameMapHooks, AdditionalMaps", "NewPositionCompass")
+            ("Additional Maps", "AdditionalMaps.MonoBehaviours.GameMapHooks, AdditionalMaps", "NewPositionCompass"),
+            ("Additional Maps", "AdditionalMaps.MonoBehaviours.GameMapHooks, AdditionalMaps", "<NewWorldMap>b__0") // TODO: find which method to hook at runtime
         };
 
         public override void Initialize()
