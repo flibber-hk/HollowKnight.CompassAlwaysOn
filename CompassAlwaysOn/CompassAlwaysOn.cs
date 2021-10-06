@@ -47,11 +47,11 @@ namespace CompassAlwaysOn
                     {
                         if (type == null)
                         {
-                            Log($"Type not found: {typeName}");
+                            LogError($"Type not found: {typeName}");
                         }
                         else
                         {
-                            Log($"Method not found: {methodName}");
+                            LogError($"Method not found: {methodName}");
                         }
                     }
                 }
@@ -72,8 +72,8 @@ namespace CompassAlwaysOn
 
             while (cursor.TryGotoNext
             (
-                i => i.MatchLdstr("equippedCharm_2"),
-                i => i.MatchCallOrCallvirt<PlayerData>("GetBool")
+                i => i.MatchLdstr(nameof(PlayerData.equippedCharm_2)),
+                i => i.MatchCallOrCallvirt<PlayerData>(nameof(PlayerData.GetBool))
             ))
             {
                 cursor.Remove();
