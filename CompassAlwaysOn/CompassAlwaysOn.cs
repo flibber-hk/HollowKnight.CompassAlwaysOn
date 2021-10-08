@@ -24,7 +24,8 @@ namespace CompassAlwaysOn
         {
             // (Type Full Name, Method Name), or (Type Full Name, null) to recursively hook all methods on that type
             ("Hkmp.Game.Client.MapManager, Hkmp", "HeroControllerOnUpdate"),
-            ("AdditionalMaps.MonoBehaviours.GameMapHooks, AdditionalMaps", null)
+            ("AdditionalMaps.MonoBehaviours.GameMapHooks, AdditionalMaps", null),
+            ("Satchel.CustomMapManager, Satchel", null)
         };
 
         public override void Initialize()
