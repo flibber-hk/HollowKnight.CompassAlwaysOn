@@ -149,7 +149,7 @@ namespace CompassAlwaysOn
 
         public override string GetVersion()
         {
-            return "1.2";
+            return GetType().Assembly.GetName().Version.ToString();
         }
         public override int LoadPriority()
         {
