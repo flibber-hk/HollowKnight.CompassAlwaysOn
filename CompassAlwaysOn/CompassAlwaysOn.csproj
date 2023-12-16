@@ -41,6 +41,12 @@
     <Reference Include="PlayMaker">
       <HintPath>$(HollowKnightRefs)\PlayMaker.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(HollowKnightRefs)\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(HollowKnightRefs)\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
   </ItemGroup>
   
   <Target Name="ClearReferenceCopyLocalPaths" AfterTargets="ResolveAssemblyReferences">

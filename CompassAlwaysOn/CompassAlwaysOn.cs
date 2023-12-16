@@ -37,6 +37,7 @@ namespace CompassAlwaysOn
 
             IL.GameMap.PositionCompass += ModifyCompassBool;
             IL.GameMap.WorldMap += ModifyCompassBool;
+            On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter += ShowOnWorldMap;
 
             // Caching the hookable methods turned out to save about 10% of the time, so I don't think it's worth the hassle
             foreach ((string typeName, string methodName) in HookableModClasses)
@@ -54,6 +55,28 @@ namespace CompassAlwaysOn
             Log($"Generated Hook List in {sw.Elapsed.TotalSeconds} seconds.");
 
             ModHooks.GetPlayerBoolHook += InterpretCompassBool;
+        }
+
+        private void ShowOnWorldMap(On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.orig_OnEnter orig, HutongGames.PlayMaker.Actions.PlayerDataBoolTest self)
+        {
+            if (!self.Fsm.FsmComponent.gameObject.name.StartsWith("Compass Icon")
+                || self.boolName.Value != nameof(PlayerData.equippedCharm_2))
+            {
+                orig(self);
+                return;
+            }
+
+            bool boolCheck = GameManager.instance.GetPlayerDataBool(EnabledBool);
+            if (boolCheck)
+            {
+                self.Fsm.Event(self.isTrue);
+            }
+            else
+            {
+                self.Fsm.Event(self.isFalse);
+            }
+
+            return;
         }
 
         private void HookMethod(string typeName, string methodName)
@@ -137,6 +160,7 @@ namespace CompassAlwaysOn
         {
             IL.GameMap.PositionCompass -= ModifyCompassBool;
             IL.GameMap.WorldMap -= ModifyCompassBool;
+            On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter += ShowOnWorldMap;
 
             foreach (ILHook hook in ModInteropHooks)
             {
