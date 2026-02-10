@@ -160,7 +160,7 @@ namespace CompassAlwaysOn
         {
             IL.GameMap.PositionCompass -= ModifyCompassBool;
             IL.GameMap.WorldMap -= ModifyCompassBool;
-            On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter += ShowOnWorldMap;
+            On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter -= ShowOnWorldMap;
 
             foreach (ILHook hook in ModInteropHooks)
             {

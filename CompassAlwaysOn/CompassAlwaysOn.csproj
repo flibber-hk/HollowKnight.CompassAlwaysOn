@@ -4,7 +4,7 @@
     <TargetFramework>net472</TargetFramework>
     <RootNamespace>CompassAlwaysOn</RootNamespace>
     <AssemblyTitle>CompassAlwaysOn</AssemblyTitle>
-    <AssemblyVersion>1.2.1</AssemblyVersion>
+    <AssemblyVersion>1.5.1.0</AssemblyVersion>
     <Deterministic>true</Deterministic>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>latest</LangVersion>
@@ -24,7 +24,7 @@
   
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(HollowKnightRefs)/Assembly-CSharp.dll.m</HintPath>
+      <HintPath>$(HollowKnightRefs)/Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="MMHOOK_Assembly-CSharp">
       <HintPath>$(HollowKnightRefs)/MMHOOK_Assembly-CSharp.dll</HintPath>
